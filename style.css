@@ -1,0 +1,60 @@
+/* styles.css */
+
+body {
+    background-color: #000; /* Black background */
+    color: #00ff00;         /* Bright green text */
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+/* Optional: Style links */
+a {
+    color: #00ff00;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+/* Optional: Center and style nav bar */
+nav ul#nav {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    background-color: #111;
+    display: flex;
+    justify-content: center;
+    border-bottom: 2px solid #00ff00;
+}
+
+nav ul#nav li {
+    margin: 0 15px;
+}
+
+nav ul#nav li a {
+    display: block;
+    padding: 10px;
+}
+
+/* Optional: Style forms and inputs */
+input, textarea {
+    background-color: #111;
+    color: #00ff00;
+    border: 1px solid #00ff00;
+    padding: 5px;
+    margin: 5px 0;
+}
+
+input[type="submit"] {
+    background-color: #00ff00;
+    color: #000;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+input[type="submit"]:hover {
+    background-color: #00cc00;
+}
