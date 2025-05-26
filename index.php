@@ -62,8 +62,10 @@ if (isset($_GET['registered'])) {
                 <input type="text" id="username" name="username" required />
                 <label for="password">Password:</label>
                 <input type="password" id="password" name="password" required />
+                <input type="hidden" name="csrf_token" value="<?php echo generateCSRFToken(); ?>" />
                 <input type="submit" value="Register" />
             </form>
+
             <p><a href="reset_password.php">Forgot your password?</a></p>
         </div>
     <?php else: ?>

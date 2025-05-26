@@ -120,6 +120,8 @@ $result = $stmt->get_result();
             <label for="quantity">Quantity:</label>
             <input type="number" id="quantity" name="quantity" min="1" required>
 
+            <input type="hidden" name="csrf_token" value="<?php echo generateCSRFToken(); ?>">
+
             <input type="submit" value="Checkout">
         </form>
     </div>

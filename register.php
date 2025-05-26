@@ -36,8 +36,12 @@ $hashed_password = password_hash($password, PASSWORD_DEFAULT);
 
 function sendConfirmationEmail($email) {
     $apiKey = $_ENV['API_KEY'];
-    $url = 'https://api.brevo.com/v3/smtp/email';
+    if (!$apiKey) {
+        error_log("Missing API Key");
+        return false;
+    }
 
+    $url = 'https://api.brevo.com/v3/smtp/email';
     $data = [
         'sender' => [
             'name' => 'DiabolicalBoaz',
@@ -66,6 +70,7 @@ function sendConfirmationEmail($email) {
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 
     $response = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 
     if (curl_errno($ch)) {
         error_log('Curl error: ' . curl_error($ch));
@@ -73,9 +78,10 @@ function sendConfirmationEmail($email) {
         return false;
     }
 
-    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    curl_close($ch);
+    error_log("Brevo Response: $response");
+    error_log("HTTP Code: $httpCode");
 
+    curl_close($ch);
     return $httpCode === 201;
 }
 

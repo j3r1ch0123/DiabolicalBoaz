@@ -2,13 +2,17 @@
 session_start();
 
 // CSRF token generation
+/*
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
+*/
 
 // Connect to the database
 include 'db_connect.php';
 include 'header.php';
+
+$conn->autocommit(true);
 
 $user_id = $_SESSION['user_id'] ?? null;
 
@@ -33,9 +37,11 @@ if ($is_admin != 1) {
 // Handle form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // CSRF token check
+    /*
     if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
         die('Invalid CSRF token');
     }
+    */
 
     $description = $_POST['description'] ?? '';
     $price = $_POST['price'] ?? 0;
@@ -71,19 +77,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (empty($name)) {
             die("Reptile name is required.");
         }
-        $stmt = $conn->prepare("INSERT INTO reptile (name, description, image, price) VALUES (?, ?, ?, ?)");
+        $stmt = $conn->prepare("INSERT INTO reptiles (name, description, image, price) VALUES (?, ?, ?, ?)");
         $stmt->bind_param("sssd", $name, $description, $imagePath, $price);
         $stmt->execute();
         $stmt->close();
     } elseif (isset($_POST['add_enclosure'])) {
-        $stmt = $conn->prepare("INSERT INTO enclosure (description, image, price) VALUES (?, ?, ?, ?)");
-        $stmt->bind_param("sssd", $name, $description, $imagePath, $price);
+        $stmt = $conn->prepare("INSERT INTO enclosures (description, image, price, quantity) VALUES (?, ?, ?, ?)");
+        $stmt->bind_param("ssdi", $description, $imagePath, $price, $quantity);
+        $stmt->execute();
+        $stmt->close();
+    // Next add supplies to the database, the format is the following:
+    // description, image, price and quantity
+    } elseif (isset($_POST['add_supplies'])) {
+        $stmt = $conn->prepare("INSERT INTO supplies (description, image, price, quantity) VALUES (?, ?, ?, ?)");
+        $stmt->bind_param("sssd", $description, $imagePath, $price, $quantity);
         $stmt->execute();
         $stmt->close();
     }
 
+    /*
     // Regenerate CSRF token
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+    */
 }
 
 // Handle message deletion
@@ -97,21 +112,28 @@ if (isset($_GET['delete'])) {
 
 // Delete reptile by name
 if (isset($_POST['delete_reptile'])) {
-    if ($_POST['csrf_token'] !== $_SESSION['csrf_token']) die('Invalid CSRF token');
+    $name = trim($_POST['name']);
 
-    $name = $_POST['name'];
-    $stmt = $conn->prepare("DELETE FROM reptile WHERE name = ?");
+    $stmt = $conn->prepare("DELETE FROM reptiles WHERE name = ?");
     $stmt->bind_param("s", $name);
     $stmt->execute();
+
+    if ($stmt->affected_rows > 0) {
+        echo "Reptile deleted successfully.<br>";
+    } else {
+        echo "No reptile found with that name.<br>";
+    }
+
     $stmt->close();
+    $conn->commit(); // <- explicitly commit here
 }
 
 // Delete enclosure by description
 if (isset($_POST['delete_enclosure'])) {
-    if ($_POST['csrf_token'] !== $_SESSION['csrf_token']) die('Invalid CSRF token');
+    //if ($_POST['csrf_token'] !== $_SESSION['csrf_token']) die('Invalid CSRF token');
 
     $description = $_POST['description'];
-    $stmt = $conn->prepare("DELETE FROM enclosure WHERE description = ?");
+    $stmt = $conn->prepare("DELETE FROM enclosures WHERE description = ?");
     $stmt->bind_param("s", $description);
     $stmt->execute();
     $stmt->close();
@@ -236,7 +258,29 @@ $stmt->close();
             <label for="price_enclosure">Price:</label>
             <input type="number" step="0.01" id="price_enclosure" name="price" required>
 
+            <label for="quantity_enclosure">Quantity:</label>
+            <input type="number" id="quantity_enclosure" name="quantity" required>
+
             <input type="submit" name="add_enclosure" value="Add Enclosure">
+        </form>
+
+        <h2>Add Supplies</h2>
+        <form method="post" enctype="multipart/form-data">
+            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
+
+            <label for="description_supplies">Description:</label>
+            <textarea id="description_supplies" name="description" required></textarea>
+
+            <label for="image_supplies">Image:</label>
+            <input type="file" id="image_supplies" name="image" accept="image/*" required>
+
+            <label for="price_supplies">Price:</label>
+            <input type="number" step="0.01" id="price_supplies" name="price" required>
+
+            <label for="quantity_supplies">Quantity:</label>
+            <input type="number" id="quantity_supplies" name="quantity" required>
+
+            <input type="submit" name="add_supplies" value="Add Supplies">
         </form>
 
     <h2>Messages</h2>

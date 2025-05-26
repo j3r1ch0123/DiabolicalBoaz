@@ -108,11 +108,15 @@ $result = $stmt->get_result();
             <?php while ($row = $result->fetch_assoc()): ?>
                 <tr>
                     <td><?php echo sanitizeInput($row['description']); ?></td>
+                    <td>
+                        <img src="<?php echo sanitizeInput($row['image']); ?>" alt="Supply image">
+                    </td>
                     <td><?php echo sanitizeInput($row['price']); ?></td>
                     <td><?php echo sanitizeInput($row['quantity']); ?></td>
                 </tr>
             <?php endwhile; ?>
         </tbody>
+
     </table>
 
     <!-- Supplies Form -->

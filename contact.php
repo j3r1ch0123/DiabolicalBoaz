@@ -31,6 +31,7 @@ echo '<label for="email">Email:</label><br>';
 echo '<input type="email" id="email" name="email" required><br>';
 echo '<label for="message">Message:</label><br>';
 echo '<textarea id="message" name="message" rows="4" required></textarea><br>';
+echo '<input type="hidden" name="csrf_token" value="' . htmlspecialchars(generateCSRFToken()) . '">';
 echo '<input type="submit" value="Submit"><br>';
 echo '</form>';
 echo '<p><a href="index.php">Return to Home</a></p>';

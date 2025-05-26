@@ -5,6 +5,9 @@ session_start();
 // Connect to the database
 include 'db_connect.php';
 
+// Include the header file
+include 'header.php';
+
 // Center the website
 echo '<div style="text-align: center;">';
 
@@ -58,14 +61,14 @@ $stmt = $conn->prepare("INSERT INTO cart (user_id, name, description, image, pri
 $stmt->bind_param("isssd", $user_id, $name, $description, $image, $price);
 $stmt->execute();
 
-// Prompt the user to pay for the adoption
+// Prompt the user to pay for the adoption, don't forget CSRF tokens
+echo '<h2>Pay for Adoption</h2>';
 echo '<form action="pay.php" method="post">';
 echo '<label for="amount">Amount:</label>';
 echo '<input type="number" id="amount" name="amount" value="' . htmlspecialchars($price) . '" readonly>';
+echo '<input type="hidden" name="csrf_token" value="' . htmlspecialchars(generateCSRFToken()) . '">';
 echo '<input type="submit" value="Pay">';
 echo '</form>';
-
-echo '</div>';
 
 $conn->close();
 ?>
